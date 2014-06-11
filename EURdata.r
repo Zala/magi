@@ -40,19 +40,39 @@ EURAB6E3Y_MID_XTS <- na.omit(xts(EURAB6E3Y_MID, order.by=EURAB6E3Y_ALL$EURAB6E3Y
 plot(EURAB6E3Y_MID_XTS)
 
 EURAB6E3Y_XTS <- na.omit(xts(EURAB6E3Y_ALL[2:4], order.by=EURAB6E3Y_ALL$EURAB6E3Y.ICAP))
-plot(EURAB6E3Y_XTS)
-tsRainbow <- rainbow(3)
+# using xts package
+plot(EURAB6E3Y_XTS[,3], xlab="time", ylab="swap rate", main = "EURAB6E3Y ASK, BID, MID RATES", major.ticks="years", minor.ticks=FALSE)
+lines(EURAB6E3Y_XTS[,1], col="red")
+lines(EURAB6E3Y_XTS[,2], col="green")
+# using zoo package
+lag <- as.numeric(format(min(time(EURAB6E3Y_XTS)), "%m")) * 22 + as.numeric(format(min(time(EURAB6E3Y_XTS)),"%d"))  #for plotting grid
+ind <- seq(lag, length(EURAB6E3Y_XTS)+270, by=261)  #for plotting grid
+
+#Y <- paste(as.character(as.numeric(format(min(time(EURAB6E3Y_XTS)), "%Y")) + 1), "01 01")
+#lag2 <- length(EURAB6E3Y_XTS[,1])-which.max(data$EURAB6E1Y.ICAP < as.POSIXct(Y, format="%Y %m %d"))
+#ind <- seq(lag2, length(EURAB6E3Y_XTS)+270, by=261)  #for plotting grid
+tsRainbow <- rainbow(3) #setting colors :)
 plot.zoo(EURAB6E3Y_XTS, main="EURAB6E3Y ASK, BID, MID RATES", plot.type="single", col=tsRainbow)
-abline(h = -1:5, v = 2000-01-01, col = "lightgray", lty = 3)
+abline(h = -1:5, v=time(EURAB6E3Y_XTS)[ind], col = "lightgray", lty = 3)
+
+
+
 
 
 # MULTIPLE MID RATES #########################################################################################################
 
 MULTIPLE_MID_XTS <- na.omit(xts(cbind(EURAB6E1Y_MID, EURAB6E3Y_MID), order.by=data$EURAB6E1Y.ICAP))
+Y <- paste(as.character(as.numeric(format(min(time(MULTIPLE_MID_XTS)), "%Y")) + 1), "01 01")
+lag2 <- length(MULTIPLE_MID_XTS[,1])-which.max(data$EURAB6E1Y.ICAP < as.POSIXct(Y, format="%Y %m %d"))
+#lag <- as.numeric(format(min(time(MULTIPLE_MID_XTS)), "%m")) * 22 + as.numeric(format(min(time(MULTIPLE_MID_XTS)),"%d"))  #for plotting grid - replace TS
+ind <- seq(lag2, length(MULTIPLE_MID_XTS)+270, by=261)  #for plotting grid
 plot.zoo(MULTIPLE_MID_XTS, main="EURAB6E1Y_MID and EURAB6E3Y_MID", plot.type="single", col=tsRainbow)
 legend(x = "topleft", legend = c("EURAB6E1Y", "EURAB6E3Y"), lty = 1, col = tsRainbow)
-abline(h = -1:5, v = 2000-01-01, col = "lightgray", lty = 3)
+abline(h = -1:5, v=time(MULTIPLE_MID_XTS)[ind], col = "lightgray", lty = 3)
 
-
-
-
+#neki se ne stima
+data$EURAB6E1Y.ICAP[1290]
+length(data$EURAB6E1Y.ICAP)-length(MULTIPLE_MID_XTS[,1])
+str(MULTIPLE_MID_XTS)
+MULTIPLE_MID_XTS[203,]
+length(data$EURAB6E1Y.ICAP)-(length(data$EURAB6E1Y.ICAP)-length(MULTIPLE_MID_XTS))-which.max(data$EURAB6E1Y.ICAP < as.POSIXct(Y, format="%Y %m %d"))
