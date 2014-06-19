@@ -12,6 +12,9 @@ library("timeSeries", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 library("forecast", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 library("fUnitRoots", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 library("urca", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
+library("astsa", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
+library("fGarch", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
+library("FinTS", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 
 data = read.table("EURdata_noDates.txt", sep = "\t", header = TRUE)
 sample <- data[1:5,1:4]
@@ -227,6 +230,33 @@ acf(forecast_arima021$residuals, lag.max=20)
 plot.ts(forecast_arima021$residuals)
 plotForecastErrors(forecast_arima021$residuals)
 urkpssTest(forecast_arima021$residuals)
+
+# using sarima() that does the correct diagnostics
+sarima(ts, 0, 2, 1)
+sarima(ts, 0, 1, 1)
+
+#Q-Q plot
+qqnorm(ts_diff2)             # normal Q-Q plot  
+qqline(ts_diff2)
+
+# ARCH, GARCH ##################################################################################################################
+#conditional heteroscedastic models
+
+# check for autocorrelation (already checked in acf grapf above - now Ljung-Box test)
+acf(forecast_arima021$residuals, lag.max=3)
+Box.test(forecast_arima021$residuals, lag=3, type="Ljung-Box") # no serial autocorrelation
+AutocorTest(forecast_arima021$residuals, lag=ceiling(log(length(forecast_arima021))), type="Ljung-Box") #same test performed in FinTS package
+
+# check for ARCH effect (original series=residuals)
+ArchTest(forecast_arima021$residuals, lags=3) #indicates ARCH effect
+
+# Build ARCH(0) model (p=0 from AR(0))
+ARCHseries <- forecast_arima021$residuals
+pacf(ARCHseries^2, ylim=c(-1,1)) #no significant lag
+arch0 <- garch(ARCHseries, order=c(0,0))
+
+
+
 
 
 
