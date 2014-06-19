@@ -15,6 +15,7 @@ library("urca", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 library("astsa", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 library("fGarch", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 library("FinTS", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
+library("tseries", lib.loc="C:/Users/zala/Documents/R/win-library/3.1")
 
 data = read.table("EURdata_noDates.txt", sep = "\t", header = TRUE)
 sample <- data[1:5,1:4]
@@ -253,10 +254,15 @@ ArchTest(forecast_arima021$residuals, lags=3) #indicates ARCH effect
 # Build ARCH(0) model (p=0 from AR(0))
 ARCHseries <- forecast_arima021$residuals
 pacf(ARCHseries^2, ylim=c(-1,1)) #no significant lag
-arch0 <- garch(ARCHseries, order=c(0,0))
+arch15 <- garch(ARCHseries, order=c(15,0)) #summary(arch15)
+ht_arch15=arch15$fit[,1]^2 
 
+fit021 <- fitted.values(ARIMA021)
+low=fit021-1.96*sqrt(ht_arch15)
+high=fit021+1.96*sqrt(ht_arch15)
 
-
-
+plot(ts, col="green")
+lines(low,col='red') 
+lines(high,col='blue')
 
 
